@@ -1,0 +1,18 @@
+version: '3'
+
+volumes:
+  data_volume_new:
+
+services:
+
+  grinderSql:
+    image: mariadb
+    env_file:
+      - configs/common.env
+    container_name: grnd.mf
+    restart: always
+    tty: true
+    ports:
+      - 3019:3306
+    volumes:
+      - data_volume_new:/var/lib/mysql/
