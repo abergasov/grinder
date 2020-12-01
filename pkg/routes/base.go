@@ -49,6 +49,8 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authorizedDataGroup := ar.GinEngine.Group("/api/data")
 	authorizedDataGroup.Use(middleware.AuthOrchestraMiddleware())
 	authorizedDataGroup.POST("profile", ar.GetPerson)
+	authorizedDataGroup.POST("profile/update", ar.UpdatePerson)
+	authorizedDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
 	return ar.GinEngine
 }
 

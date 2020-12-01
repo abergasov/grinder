@@ -15,10 +15,19 @@ type UserRepository struct {
 const DefaultUserVersion = 0
 
 type User struct {
+	ID        int64  `db:"user_id" json:"id"`
+	Email     string `db:"email" json:"email"`
+	Pass      string `db:"pass" json:"pass,omitempty"`
+	Version   int64  `db:"version" json:"version,omitempty"`
+	FirstName string `db:"first_name" json:"first_name"`
+	LastName  string `db:"last_name" json:"last_name"`
+}
+
+type UpdateUserPass struct {
 	ID      int64  `db:"user_id" json:"id"`
-	Email   string `db:"email" json:"email"`
-	Pass    string `db:"pass" json:"pass,omitempty"`
 	Version int64  `db:"version" json:"version,omitempty"`
+	OldPass string `db:"old_pass" json:"old_pass,omitempty"`
+	Pass    string `db:"pass" json:"pass,omitempty"`
 }
 
 func InitUserRepository(cnf *config.AppConfig, db *storage.DBConnector) *UserRepository {
@@ -106,4 +115,29 @@ func (ur *UserRepository) GetUser(userID, version int64) (*User, bool, error) {
 		return nil, false, nil
 	}
 	return &p, true, nil
+}
+
+func (ur *UserRepository) UpdateUser(u User) (*User, error) {
+	_, err := ur.db.Client.NamedExec(`UPDATE users SET first_name=:first_name, last_name=:last_name WHERE user_id = :user_id AND version = :version`, u)
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (ur *UserRepository) UpdateUserPassword(u UpdateUserPass) (*User, bool, error) {
+	var err error
+	u.Pass, err = utils.GeneratePassword(ur.passConf, u.Pass)
+	res, err := ur.db.Client.NamedExec(`UPDATE users SET pass=:pass WHERE user_id = :user_id AND version = :version AND pass = :old_pass`, u)
+	if err != nil {
+		return nil, false, err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return nil, false, err
+	}
+	if rows == 0 {
+		return nil, false, nil
+	}
+	return ur.GetUser(u.ID, u.Version)
 }

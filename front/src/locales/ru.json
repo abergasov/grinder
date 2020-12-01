@@ -1,0 +1,16 @@
+{
+  "search": "Поиск",
+  "total": "Итого",
+  "dashboard": "Главная",
+  "statistic": "Статистика",
+  "categories": "Категории",
+  "profile": "Профиль",
+  "home": "Главная",
+  "login": "Вход",
+  "register": "Регистрация",
+  "password": "Пароль",
+  "password_retype": "Повторите пароль",
+  "changes": "Последние изменения",
+  "update": "Обновить",
+  "update_password": "Пароль обновить"
+}

@@ -1,0 +1,16 @@
+{
+  "search": "Search",
+  "total": "Total",
+  "dashboard": "Dashboard",
+  "statistic": "Statistic",
+  "categories": "Categories",
+  "profile": "Profile",
+  "home": "Home",
+  "login": "Login",
+  "register": "Register",
+  "password": "Password",
+  "password_retype": "Retype Password",
+  "changes": "Last changes",
+  "update": "Update",
+  "update_password": "Password update"
+}
