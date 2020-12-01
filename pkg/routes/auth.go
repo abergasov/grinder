@@ -20,13 +20,8 @@ type regioRequesto struct {
 var reEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 func (ar *AppRouter) LoginUser(c *gin.Context) {
-	var u regioRequesto
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "Invalid request"})
-		return
-	}
-	if !reEmail.MatchString(u.Email) {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid email"})
+	u := ar.checkAuthRequest(c)
+	if u == nil {
 		return
 	}
 
@@ -51,18 +46,8 @@ func (ar *AppRouter) LoginUser(c *gin.Context) {
 }
 
 func (ar *AppRouter) RegisterUser(c *gin.Context) {
-	var u regioRequesto
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "Invalid request"})
-		return
-	}
-	if u.RePassword != u.Password {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "password mismatch"})
-		return
-	}
-
-	if !reEmail.MatchString(u.Email) {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid email"})
+	u := ar.checkAuthRequest(c)
+	if u == nil {
 		return
 	}
 
@@ -86,4 +71,18 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
+}
+
+func (ar *AppRouter) checkAuthRequest(c *gin.Context) *regioRequesto {
+	var u regioRequesto
+	if err := c.ShouldBindJSON(&u); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "Invalid request"})
+		return nil
+	}
+
+	if !reEmail.MatchString(u.Email) {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid email"})
+		return nil
+	}
+	return &u
 }
