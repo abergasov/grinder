@@ -1,0 +1,9 @@
+host_url: http://localhost:8899
+prod_env: false
+app_port: 8899
+db_conf:
+  db_host: 127.0.0.1
+  db_user: 2ATCrMn2E2xhp43YL2ge
+  db_name: grinder
+  db_pass: pbBEAVndCEVwetYl2wlkWP0qwFFDXFv2Jc
+  db_port: 3019

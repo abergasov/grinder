@@ -2,6 +2,7 @@ package routes
 
 import (
 	"grinder/pkg/config"
+	"grinder/pkg/repository"
 	"grinder/pkg/storage"
 	"net/http"
 
@@ -14,6 +15,7 @@ type AppRouter struct {
 	AppName      string
 	AppBuildTime string
 	AppBuildHash string
+	userRepo     *repository.UserRepository
 }
 
 func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, appName, appBuild, appHash string) *AppRouter {
@@ -26,12 +28,16 @@ func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, appName, 
 		AppName:      appName,
 		AppBuildHash: appHash,
 		AppBuildTime: appBuild,
+		userRepo:     repository.InitUserRepository(cnf, dbConnect),
 	}
 	return router
 }
 
 func (ar *AppRouter) InitRoutes() *gin.Engine {
 	ar.GinEngine.GET("/ping", ar.Ping)
+	authGroup := ar.GinEngine.Group("/api/auth")
+	authGroup.POST("login", ar.LoginUser)
+	authGroup.POST("register", ar.RegisterUser)
 	return ar.GinEngine
 }
 

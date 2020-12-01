@@ -3,3 +3,5 @@ build/*
 !build/.gitkeep
 configs/conf.yaml
 configs/common.env
+helpers/vendor
+helpers/phinx.yml

@@ -1,0 +1,15 @@
+{
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexander Bergasov",
+      "email": "abergasov@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "*",
+    "robmorgan/phinx": "^0.10.8",
+    "symfony/console": "^4.3",
+    "vlucas/phpdotenv": "^3.4"
+  }
+}

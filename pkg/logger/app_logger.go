@@ -25,7 +25,7 @@ func Warning(message string, args ...zapcore.Field) {
 	aLogger.Warn(message, args...)
 }
 
-func Error(message string, err error) {
+func Error(message string, err error, args ...zapcore.Field) {
 	aLogger.Error(message, zap.Error(err))
 }
 
