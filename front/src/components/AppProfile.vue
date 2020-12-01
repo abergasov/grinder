@@ -30,7 +30,7 @@
             <v-btn :disabled="!formValid()" color="success" @click="updateUser" large>{{ $t('update') }}</v-btn>
         </v-card-actions>
     </v-card>
-    <v-card class="mx-auto pass_change"  color="#385F73" dark>
+    <v-card class="mx-auto pass_change" dark>
       <v-toolbar flat>
         <v-icon>mdi-key-variant</v-icon>
         <v-toolbar-title class="font-weight-light">Update password</v-toolbar-title>
@@ -69,17 +69,17 @@
   export default {
     name: "AppProfile",
     data () {
-        return {
-            pending: false,
-            firstName: '',
-            lastName: '',
-            isEditing: false,
-            changePass: false,
+      return {
+        pending: false,
+        firstName: '',
+        lastName: '',
+        isEditing: false,
+        changePass: false,
 
-            oldPass: '',
-            newPass: '',
-            reTypeNewPass: '',
-        }
+        oldPass: '',
+        newPass: '',
+        reTypeNewPass: '',
+      }
     },
     created() {
       this.loadAll();
@@ -88,6 +88,7 @@
       formPassValid() {
         return !this.pending && this.oldPass.length > 0 && this.newPass.length > 0 && this.newPass === this.reTypeNewPass;
       },
+
       formValid() {
         return this.isEditing && this.firstName.length > 0 && this.lastName.length > 0;
       },
@@ -100,7 +101,6 @@
             if (data.ok) {
               this.firstName = data.user.first_name;
               this.lastName = data.user.last_name;
-
             }
           },
           e => console.error(e),
@@ -145,6 +145,6 @@
 
 <style scoped>
   .pass_change {
-    padding-top: 20px;
+    margin-top: 20px;
   }
 </style>
