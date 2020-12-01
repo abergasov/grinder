@@ -71,3 +71,18 @@ func (ur *UserRepository) RegisterUser(mail, password string) (registered int64,
 
 	return uID, false, nil
 }
+
+func (ur *UserRepository) LoginUser(mail, password string) (userID int64, userVersion int64, err error) {
+	var p user
+	err = ur.db.Client.Get(&p, "SELECT * FROM users WHERE email = ?", mail)
+	if err != nil {
+		return
+	}
+	valid, err := utils.ComparePassword(password, p.Pass)
+	if !valid {
+		return 0, 0, nil
+	}
+	userVersion = p.Version
+	userID = p.ID
+	return
+}
