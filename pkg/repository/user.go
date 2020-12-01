@@ -14,11 +14,11 @@ type UserRepository struct {
 
 const DefaultUserVersion = 0
 
-type user struct {
-	ID      int64  `db:"user_id"`
-	Email   string `db:"email"`
-	Pass    string `db:"pass"`
-	Version int64  `db:"version"`
+type User struct {
+	ID      int64  `db:"user_id" json:"id"`
+	Email   string `db:"email" json:"email"`
+	Pass    string `db:"pass" json:"pass,omitempty"`
+	Version int64  `db:"version" json:"version,omitempty"`
 }
 
 func InitUserRepository(cnf *config.AppConfig, db *storage.DBConnector) *UserRepository {
@@ -54,7 +54,7 @@ func (ur *UserRepository) RegisterUser(mail, password string) (registered int64,
 	if err != nil {
 		return 0, false, err
 	}
-	res, err := ur.db.Client.NamedExec("INSERT INTO users (email, pass, version) VALUES (:email, :pass, :version)", user{
+	res, err := ur.db.Client.NamedExec("INSERT INTO users (email, Pass, version) VALUES (:email, :Pass, :version)", User{
 		Email:   mail,
 		Pass:    passHash,
 		Version: DefaultUserVersion,
@@ -73,7 +73,7 @@ func (ur *UserRepository) RegisterUser(mail, password string) (registered int64,
 }
 
 func (ur *UserRepository) LoginUser(mail, password string) (userID int64, userVersion int64, err error) {
-	var p user
+	var p User
 	err = ur.db.Client.Get(&p, "SELECT * FROM users WHERE email = ?", mail)
 	if err != nil {
 		return
@@ -88,10 +88,22 @@ func (ur *UserRepository) LoginUser(mail, password string) (userID int64, userVe
 }
 
 func (ur *UserRepository) CheckVersion(userID, version int64) (valid bool, err error) {
-	var p user
+	var p User
 	err = ur.db.Client.Get(&p, "SELECT * FROM users WHERE user_id = ?", userID)
 	if err != nil {
 		return
 	}
 	return p.Version == version, nil
+}
+
+func (ur *UserRepository) GetUser(userID, version int64) (*User, bool, error) {
+	var p User
+	err := ur.db.Client.Get(&p, "SELECT * FROM users WHERE user_id = ?", userID)
+	if err != nil {
+		return nil, false, err
+	}
+	if p.Version != version {
+		return nil, false, nil
+	}
+	return &p, true, nil
 }

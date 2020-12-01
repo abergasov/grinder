@@ -18,8 +18,7 @@ type regioRequesto struct {
 }
 
 var (
-	reEmail   = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	jwtCookie = "rc"
+	reEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
 func (ar *AppRouter) LoginUser(c *gin.Context) {
@@ -45,7 +44,7 @@ func (ar *AppRouter) LoginUser(c *gin.Context) {
 		return
 	}
 
-	ar.setSecretCookie(c, jwtCookie, token)
+	ar.setSecretCookie(c, ar.jwtCookie, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }
 
@@ -74,12 +73,12 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	ar.setSecretCookie(c, jwtCookie, token)
+	ar.setSecretCookie(c, ar.jwtCookie, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }
 
 func (ar *AppRouter) RefreshToken(c *gin.Context) {
-	token, err := c.Cookie(jwtCookie)
+	token, err := c.Cookie(ar.jwtCookie)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
 		return
@@ -108,7 +107,7 @@ func (ar *AppRouter) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	ar.setSecretCookie(c, jwtCookie, token)
+	ar.setSecretCookie(c, ar.jwtCookie, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }
 
@@ -127,7 +126,7 @@ func (ar *AppRouter) checkAuthRequest(c *gin.Context) *regioRequesto {
 }
 
 func (ar *AppRouter) Logout(c *gin.Context) {
-	ar.setSecretCookie(c, jwtCookie, "")
+	ar.setSecretCookie(c, ar.jwtCookie, "")
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
