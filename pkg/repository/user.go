@@ -86,3 +86,12 @@ func (ur *UserRepository) LoginUser(mail, password string) (userID int64, userVe
 	userID = p.ID
 	return
 }
+
+func (ur *UserRepository) CheckVersion(userID, version int64) (valid bool, err error) {
+	var p user
+	err = ur.db.Client.Get(&p, "SELECT * FROM users WHERE user_id = ?", userID)
+	if err != nil {
+		return
+	}
+	return p.Version == version, nil
+}

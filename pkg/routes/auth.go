@@ -17,7 +17,10 @@ type regioRequesto struct {
 	RePassword string `json:"re_password"`
 }
 
-var reEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var (
+	reEmail   = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	jwtCookie = "rc"
+)
 
 func (ar *AppRouter) LoginUser(c *gin.Context) {
 	u := ar.checkAuthRequest(c)
@@ -42,6 +45,7 @@ func (ar *AppRouter) LoginUser(c *gin.Context) {
 		return
 	}
 
+	ar.setSecretCookie(c, jwtCookie, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }
 
@@ -70,6 +74,41 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	ar.setSecretCookie(c, jwtCookie, token)
+	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
+}
+
+func (ar *AppRouter) RefreshToken(c *gin.Context) {
+	token, err := c.Cookie(jwtCookie)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
+		return
+	}
+	userID, userVersion := ar.sessionRepo.ValidateSession(token)
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
+		return
+	}
+
+	valid, err := ar.userRepo.CheckVersion(userID, userVersion)
+	if err != nil {
+		logger.Error("error while check token", err, zap.Int64("userId", userID), zap.String("token", token))
+		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "error while refresh"})
+		return
+	}
+	if !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
+		return
+	}
+
+	token, err = ar.sessionRepo.CreateSession(userID, userVersion)
+	if err != nil {
+		logger.Error("error while create token", err, zap.Int64("userId", userID), zap.String("token", token))
+		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "error while login"})
+		return
+	}
+
+	ar.setSecretCookie(c, jwtCookie, token)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }
 
@@ -85,4 +124,15 @@ func (ar *AppRouter) checkAuthRequest(c *gin.Context) *regioRequesto {
 		return nil
 	}
 	return &u
+}
+
+func (ar *AppRouter) Logout(c *gin.Context) {
+	ar.setSecretCookie(c, jwtCookie, "")
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+func (ar *AppRouter) setSecretCookie(c *gin.Context, keyName, keyValue string) {
+	liveTime := repository.GetTokenLiveTime()
+	path := "/api/"
+	c.SetCookie(keyName, keyValue, int(liveTime), path, ar.config.HostURL, ar.config.SSLEnable, true)
 }

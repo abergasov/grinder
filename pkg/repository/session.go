@@ -12,7 +12,7 @@ type SessionManager struct {
 }
 
 type sessionClaims struct {
-	ID          int64 `json:"user_id"`
+	UserID      int64 `json:"user_id"`
 	UserVersion int64 `json:"v"`
 	jwt.StandardClaims
 }
@@ -20,13 +20,17 @@ type sessionClaims struct {
 func InitSessionManager(jwtKey string) *SessionManager {
 	return &SessionManager{
 		jwtKey:           []byte(jwtKey),
-		sessionValidTime: 200 * time.Minute,
+		sessionValidTime: GetTokenLiveTime(),
 	}
+}
+
+func GetTokenLiveTime() time.Duration {
+	return 200 * time.Minute
 }
 
 func (s *SessionManager) CreateSession(userID, userVersion int64) (string, error) {
 	atClaims := sessionClaims{
-		ID:          userID,
+		UserID:      userID,
 		UserVersion: userVersion,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(s.sessionValidTime).Unix(),
@@ -36,7 +40,7 @@ func (s *SessionManager) CreateSession(userID, userVersion int64) (string, error
 	return at.SignedString(s.jwtKey)
 }
 
-func (s *SessionManager) ValidateSession(sessionId string) (userID string, valid bool) {
+func (s *SessionManager) ValidateSession(sessionId string) (userID, version int64) {
 	token, err := jwt.ParseWithClaims(sessionId, &sessionClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return s.jwtKey, nil
 	})
@@ -50,7 +54,7 @@ func (s *SessionManager) ValidateSession(sessionId string) (userID string, valid
 	}
 
 	if claims, ok := token.Claims.(*sessionClaims); ok {
-		return claims.Id, true
+		return claims.UserID, claims.UserVersion
 	}
 
 	return

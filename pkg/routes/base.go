@@ -40,6 +40,8 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authGroup := ar.GinEngine.Group("/api/auth")
 	authGroup.POST("login", ar.LoginUser)
 	authGroup.POST("register", ar.RegisterUser)
+	authGroup.POST("refresh", ar.RefreshToken)
+	authGroup.POST("logout", ar.Logout)
 	return ar.GinEngine
 }
 
