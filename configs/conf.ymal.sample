@@ -1,6 +1,7 @@
 host_url: http://localhost:8899
 prod_env: false
 app_port: 8899
+jwt_key: apage
 db_conf:
   db_host: 127.0.0.1
   db_user: 2ATCrMn2E2xhp43YL2ge

@@ -14,6 +14,7 @@ type AppConfig struct {
 	ProdEnv bool   `yaml:"prod_env"`
 	HostURL string `yaml:"host_url"`
 	AppPort string `yaml:"app_port"`
+	JWTKey  string `yaml:"jwt_key"`
 	DBConf  DBConf `yaml:"db_conf"`
 }
 

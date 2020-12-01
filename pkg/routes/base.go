@@ -16,6 +16,7 @@ type AppRouter struct {
 	AppBuildTime string
 	AppBuildHash string
 	userRepo     *repository.UserRepository
+	sessionRepo  *repository.SessionManager
 }
 
 func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, appName, appBuild, appHash string) *AppRouter {
@@ -29,6 +30,7 @@ func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, appName, 
 		AppBuildHash: appHash,
 		AppBuildTime: appBuild,
 		userRepo:     repository.InitUserRepository(cnf, dbConnect),
+		sessionRepo:  repository.InitSessionManager(cnf.JWTKey),
 	}
 	return router
 }

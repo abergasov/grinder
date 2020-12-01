@@ -2,6 +2,7 @@ package routes
 
 import (
 	"grinder/pkg/logger"
+	"grinder/pkg/repository"
 	"net/http"
 	"regexp"
 
@@ -43,7 +44,7 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	created, exist, err := ar.userRepo.RegisterUser(u.Email, u.Password)
+	userID, exist, err := ar.userRepo.RegisterUser(u.Email, u.Password)
 	if exist {
 		c.JSON(http.StatusConflict, gin.H{"ok": false, "error": "user already exist"})
 		return
@@ -53,5 +54,13 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "error while register"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"ok": true, "created": created})
+
+	token, err := ar.sessionRepo.CreateSession(userID, repository.DefaultUserVersion)
+	if err != nil {
+		logger.Error("error while create token", err, zap.String("email", u.Email), zap.String("pass", u.Password))
+		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "error while register"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ok": true, "token": token})
 }

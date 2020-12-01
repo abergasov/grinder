@@ -12,10 +12,13 @@ type UserRepository struct {
 	passConf *utils.PasswordConfig
 }
 
+const DefaultUserVersion = 0
+
 type user struct {
-	ID    string `db:"user_id"`
-	Email string `db:"email"`
-	Pass  string `db:"pass"`
+	ID      int64  `db:"user_id"`
+	Email   string `db:"email"`
+	Pass    string `db:"pass"`
+	Version int64  `db:"version"`
 }
 
 func InitUserRepository(cnf *config.AppConfig, db *storage.DBConnector) *UserRepository {
@@ -30,35 +33,41 @@ func InitUserRepository(cnf *config.AppConfig, db *storage.DBConnector) *UserRep
 	}
 }
 
-func (ur *UserRepository) RegisterUser(mail, password string) (registered, exist bool, err error) {
+func (ur *UserRepository) RegisterUser(mail, password string) (registered int64, exist bool, err error) {
 	// check mail already exist
 	row := ur.db.Client.QueryRow("SELECT user_id FROM users WHERE email = ?", mail)
 	var userID int
 	err = row.Scan(&userID)
 	if err != nil && err != sql.ErrNoRows {
 		// something wrong
-		return false, false, err
+		return 0, false, err
 	}
 
 	userExist := err != nil && err == sql.ErrNoRows
 	if !userExist {
 		// already exist
-		return false, true, nil
+		return 0, true, nil
 	}
 
 	var passHash string
 	passHash, err = utils.GeneratePassword(ur.passConf, password)
 	if err != nil {
-		return false, false, err
+		return 0, false, err
 	}
-	_, err = ur.db.Client.NamedExec("INSERT INTO client (email, pass) VALUES (:name, :secret)", user{
-		Email: mail,
-		Pass:  passHash,
+	res, err := ur.db.Client.NamedExec("INSERT INTO users (email, pass, version) VALUES (:email, :pass, :version)", user{
+		Email:   mail,
+		Pass:    passHash,
+		Version: DefaultUserVersion,
 	})
 
 	if err != nil {
-		return false, false, err
+		return 0, false, err
 	}
 
-	return true, false, nil
+	uID, err := res.LastInsertId()
+	if err != nil {
+		return 0, false, err
+	}
+
+	return uID, false, nil
 }
