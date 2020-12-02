@@ -54,6 +54,11 @@ func (ar *AppRouter) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	if u.Password != u.RePassword {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "passwords mismatch"})
+		return
+	}
+
 	userID, exist, err := ar.userRepo.RegisterUser(u.Email, u.Password)
 	if err != nil {
 		logger.Error("error while register", err, zap.String("email", u.Email), zap.String("pass", u.Password))
@@ -131,7 +136,7 @@ func (ar *AppRouter) Logout(c *gin.Context) {
 }
 
 func (ar *AppRouter) setSecretCookie(c *gin.Context, keyName, keyValue string) {
-	liveTime := repository.GetTokenLiveTime()
+	liveTime := ar.sessionRepo.GetTokenLiveTime()
 	path := "/api/"
 	c.SetCookie(keyName, keyValue, int(liveTime), path, ar.config.HostURL, ar.config.SSLEnable, true)
 }

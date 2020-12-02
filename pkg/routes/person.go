@@ -73,12 +73,7 @@ func (ar *AppRouter) UpdatePersonPass(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "Invalid request"})
 		return
 	}
-	user, valid, err := ar.userRepo.UpdateUserPassword(repository.UpdateUserPass{
-		ID:      userID,
-		Version: userVersion,
-		Pass:    p.NewPass,
-		OldPass: p.OldPass,
-	})
+	user, valid, err := ar.userRepo.UpdateUserPassword(userID, userVersion, p.OldPass, p.NewPass)
 	if err != nil {
 		logger.Error("error change password", err, zap.String("old_pass", p.OldPass), zap.String("new_pass", p.NewPass), zap.Int64("user", userID))
 		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "server error"})

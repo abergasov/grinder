@@ -14,15 +14,6 @@ type UserRepository struct {
 
 const DefaultUserVersion = 0
 
-type User struct {
-	ID        int64  `db:"user_id" json:"id"`
-	Email     string `db:"email" json:"email"`
-	Pass      string `db:"pass" json:"pass,omitempty"`
-	Version   int64  `db:"version" json:"version,omitempty"`
-	FirstName string `db:"first_name" json:"first_name"`
-	LastName  string `db:"last_name" json:"last_name"`
-}
-
 type UpdateUserPass struct {
 	ID      int64  `db:"user_id" json:"id"`
 	Version int64  `db:"version" json:"version,omitempty"`
@@ -125,7 +116,13 @@ func (ur *UserRepository) UpdateUser(u User) (*User, error) {
 	return &u, nil
 }
 
-func (ur *UserRepository) UpdateUserPassword(u UpdateUserPass) (*User, bool, error) {
+func (ur *UserRepository) UpdateUserPassword(uID, uV int64, oldPass, newPass string) (*User, bool, error) {
+	u := UpdateUserPass{
+		OldPass: oldPass,
+		Pass:    newPass,
+		Version: uV,
+		ID:      uID,
+	}
 	var err error
 	u.Pass, err = utils.GeneratePassword(ur.passConf, u.Pass)
 	res, err := ur.db.Client.NamedExec(`UPDATE users SET pass=:pass WHERE user_id = :user_id AND version = :version AND pass = :old_pass`, u)

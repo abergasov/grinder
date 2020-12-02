@@ -3,8 +3,6 @@ package routes
 import (
 	"grinder/pkg/config"
 	"grinder/pkg/middleware"
-	"grinder/pkg/repository"
-	"grinder/pkg/storage"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,11 +15,11 @@ type AppRouter struct {
 	AppBuildTime string
 	AppBuildHash string
 	jwtCookie    string
-	userRepo     *repository.UserRepository
-	sessionRepo  *repository.SessionManager
+	userRepo     IUserRepo
+	sessionRepo  ISessionManager
 }
 
-func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, sM *repository.SessionManager, jwtCookie, appName, appBuild, appHash string) *AppRouter {
+func InitRouter(cnf *config.AppConfig, uRepo IUserRepo, sM ISessionManager, jwtCookie, appName, appBuild, appHash string) *AppRouter {
 	if cnf.ProdEnv {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -32,7 +30,7 @@ func InitRouter(cnf *config.AppConfig, dbConnect *storage.DBConnector, sM *repos
 		AppBuildHash: appHash,
 		AppBuildTime: appBuild,
 		jwtCookie:    jwtCookie,
-		userRepo:     repository.InitUserRepository(cnf, dbConnect),
+		userRepo:     uRepo,
 		sessionRepo:  sM,
 	}
 	return router

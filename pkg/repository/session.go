@@ -17,15 +17,15 @@ type sessionClaims struct {
 	jwt.StandardClaims
 }
 
-func InitSessionManager(jwtKey string) *SessionManager {
+func InitSessionManager(jwtKey string, tokenLiveTime time.Duration) *SessionManager {
 	return &SessionManager{
 		jwtKey:           []byte(jwtKey),
-		sessionValidTime: GetTokenLiveTime(),
+		sessionValidTime: tokenLiveTime,
 	}
 }
 
-func GetTokenLiveTime() time.Duration {
-	return 200 * time.Minute
+func (s *SessionManager) GetTokenLiveTime() time.Duration {
+	return s.sessionValidTime
 }
 
 func (s *SessionManager) CreateSession(userID, userVersion int64) (string, error) {

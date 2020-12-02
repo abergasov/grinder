@@ -7,6 +7,7 @@ import (
 	"grinder/pkg/repository"
 	"grinder/pkg/routes"
 	"grinder/pkg/storage"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -23,8 +24,9 @@ func main() {
 	appConf := config.InitConf("/configs/conf.yaml")
 	dbConnect := storage.InitDBConnect(appConf)
 
-	sessionManager := repository.InitSessionManager(appConf.JWTKey)
-	router := routes.InitRouter(appConf, dbConnect, sessionManager, jwtCookie, appName, buildTime, buildHash)
+	sessionManager := repository.InitSessionManager(appConf.JWTKey, 200*time.Minute)
+	userRepo := repository.InitUserRepository(appConf, dbConnect)
+	router := routes.InitRouter(appConf, userRepo, sessionManager, jwtCookie, appName, buildTime, buildHash)
 	middleware.InitMiddleware(jwtCookie, sessionManager)
 
 	logger.Info("Server running on port", zap.String("port", appConf.AppPort), zap.String("url", "http://localhost:"+appConf.AppPort))
