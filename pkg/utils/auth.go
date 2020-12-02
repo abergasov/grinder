@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -41,6 +42,9 @@ func GeneratePassword(c *PasswordConfig, password string) (string, error) {
 func ComparePassword(password, hash string) (bool, error) {
 
 	parts := strings.Split(hash, "$")
+	if len(parts) != 6 {
+		return false, errors.New("invalid hash")
+	}
 
 	c := &PasswordConfig{}
 	_, err := fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &c.Memory, &c.Time, &c.Threads)
