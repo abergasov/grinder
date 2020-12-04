@@ -5,8 +5,13 @@ import (
 	"time"
 )
 
+var (
+	jwtCookie    = "test"
+	jwtCookieExp = 2 * time.Minute
+)
+
 func TestCreateSession(t *testing.T) {
-	s := InitSessionManager("abc", 100*time.Millisecond)
+	s := InitSessionManager("abc", jwtCookie, 100*time.Millisecond)
 
 	token, err := s.CreateSession(666, 666)
 	if err != nil {

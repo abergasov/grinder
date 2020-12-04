@@ -5,6 +5,7 @@
 package routes
 
 import (
+	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
 	repository "grinder/pkg/repository"
 	reflect "reflect"
@@ -76,6 +77,34 @@ func (m *MockISessionManager) GetTokenLiveTime() time.Duration {
 func (mr *MockISessionManagerMockRecorder) GetTokenLiveTime() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenLiveTime", reflect.TypeOf((*MockISessionManager)(nil).GetTokenLiveTime))
+}
+
+// AuthMiddleware mocks base method
+func (m *MockISessionManager) AuthMiddleware(arg0 *gin.Context) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AuthMiddleware", arg0)
+}
+
+// AuthMiddleware indicates an expected call of AuthMiddleware
+func (mr *MockISessionManagerMockRecorder) AuthMiddleware(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthMiddleware", reflect.TypeOf((*MockISessionManager)(nil).AuthMiddleware), arg0)
+}
+
+// GetUserAndVersion mocks base method
+func (m *MockISessionManager) GetUserAndVersion(arg0 *gin.Context) (int64, int64, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserAndVersion", arg0)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(bool)
+	return ret0, ret1, ret2
+}
+
+// GetUserAndVersion indicates an expected call of GetUserAndVersion
+func (mr *MockISessionManagerMockRecorder) GetUserAndVersion(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserAndVersion", reflect.TypeOf((*MockISessionManager)(nil).GetUserAndVersion), arg0)
 }
 
 // MockIUserRepo is a mock of IUserRepo interface

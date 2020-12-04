@@ -3,12 +3,16 @@ package routes
 import (
 	"grinder/pkg/repository"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ISessionManager interface {
 	CreateSession(userID int64, version int64) (string, error)
 	ValidateSession(string) (int64, int64)
 	GetTokenLiveTime() time.Duration
+	AuthMiddleware(*gin.Context)
+	GetUserAndVersion(*gin.Context) (int64, int64, bool)
 }
 
 type IUserRepo interface {

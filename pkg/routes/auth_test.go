@@ -56,7 +56,7 @@ func getSampleConf() *config.AppConfig {
 	}
 }
 
-//go:generate mockgen -source=router_structs.go -destination=auth_mock.go -package=routes IUserRepo
+//go:generate mockgen -source=router_structs.go -destination=auth_mock.go -package=routes
 func TestAppRouter_LoginUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -163,7 +163,7 @@ func TestAppRouter_RefreshToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	conf := getSampleConf()
-	sessionReal := repository.InitSessionManager("abc", jwtCookieExp)
+	sessionReal := repository.InitSessionManager("abc", jwtCookie, jwtCookieExp)
 	token, err := sessionReal.CreateSession(666, 666)
 	if err != nil {
 		t.Errorf("Unexpected error %s", err.Error())

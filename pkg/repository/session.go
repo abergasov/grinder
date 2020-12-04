@@ -1,13 +1,17 @@
 package repository
 
 import (
+	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
 type SessionManager struct {
 	jwtKey           []byte
+	jwtCookie        string
 	sessionValidTime time.Duration
 }
 
@@ -17,9 +21,10 @@ type sessionClaims struct {
 	jwt.StandardClaims
 }
 
-func InitSessionManager(jwtKey string, tokenLiveTime time.Duration) *SessionManager {
+func InitSessionManager(jwtKey, jwtCookie string, tokenLiveTime time.Duration) *SessionManager {
 	return &SessionManager{
 		jwtKey:           []byte(jwtKey),
+		jwtCookie:        jwtCookie,
 		sessionValidTime: tokenLiveTime,
 	}
 }
@@ -58,4 +63,41 @@ func (s *SessionManager) ValidateSession(sessionId string) (userID, version int6
 	}
 
 	return
+}
+
+func (s *SessionManager) GetUserAndVersion(c *gin.Context) (int64, int64, bool) {
+	val, exist := c.Get("user_id")
+	if !exist {
+		return 0, 0, false
+	}
+	userID, ok := val.(int64)
+	if !ok {
+		return 0, 0, false
+	}
+	val, exist = c.Get("user_version")
+	if !exist {
+		return 0, 0, false
+	}
+	userVersion, ok := val.(int64)
+	if !ok {
+		return 0, 0, false
+	}
+	return userID, userVersion, true
+}
+
+func (s *SessionManager) AuthMiddleware(c *gin.Context) {
+	token, err := c.Cookie(s.jwtCookie)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
+		return
+	}
+	userID, userVersion := s.ValidateSession(token)
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"ok": false, "error": "expired"})
+		return
+	}
+
+	c.Set("user_id", userID)
+	c.Set("user_version", userVersion)
+	c.Next()
 }

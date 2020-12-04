@@ -11,8 +11,9 @@ import (
 )
 
 func (ar *AppRouter) GetPerson(c *gin.Context) {
-	userID, userVersion, valid := ar.getUserAndVersion(c)
+	userID, userVersion, valid := ar.sessionRepo.GetUserAndVersion(c)
 	if !valid {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
 		return
 	}
 
@@ -31,8 +32,9 @@ func (ar *AppRouter) GetPerson(c *gin.Context) {
 }
 
 func (ar *AppRouter) UpdatePerson(c *gin.Context) {
-	userID, userVersion, valid := ar.getUserAndVersion(c)
+	userID, userVersion, valid := ar.sessionRepo.GetUserAndVersion(c)
 	if !valid {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
 		return
 	}
 
@@ -60,8 +62,9 @@ func (ar *AppRouter) UpdatePerson(c *gin.Context) {
 }
 
 func (ar *AppRouter) UpdatePersonPass(c *gin.Context) {
-	userID, userVersion, valid := ar.getUserAndVersion(c)
+	userID, userVersion, valid := ar.sessionRepo.GetUserAndVersion(c)
 	if !valid {
+		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
 		return
 	}
 
@@ -88,28 +91,4 @@ func (ar *AppRouter) UpdatePersonPass(c *gin.Context) {
 	user.Pass = ""
 	user.Version = 0
 	c.JSON(http.StatusOK, gin.H{"ok": true, "user": user})
-}
-
-func (ar *AppRouter) getUserAndVersion(c *gin.Context) (int64, int64, bool) {
-	val, exist := c.Get("user_id")
-	if !exist {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
-		return 0, 0, false
-	}
-	userID, ok := val.(int64)
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
-		return 0, 0, false
-	}
-	val, exist = c.Get("user_version")
-	if !exist {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
-		return 0, 0, false
-	}
-	userVersion, ok := val.(int64)
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "invalid user"})
-		return 0, 0, false
-	}
-	return userID, userVersion, true
 }

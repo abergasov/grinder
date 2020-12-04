@@ -2,7 +2,6 @@ package routes
 
 import (
 	"grinder/pkg/config"
-	"grinder/pkg/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +44,7 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authGroup.POST("logout", ar.Logout)
 
 	authorizedDataGroup := ar.GinEngine.Group("/api/data")
-	authorizedDataGroup.Use(middleware.AuthOrchestraMiddleware())
+	authorizedDataGroup.Use(ar.sessionRepo.AuthMiddleware)
 	authorizedDataGroup.POST("profile", ar.GetPerson)
 	authorizedDataGroup.POST("profile/update", ar.UpdatePerson)
 	authorizedDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
