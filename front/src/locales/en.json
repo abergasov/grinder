@@ -12,5 +12,6 @@
   "password_retype": "Retype Password",
   "changes": "Last changes",
   "update": "Update",
-  "update_password": "Password update"
+  "update_password": "Password update",
+  "users": "Users"
 }

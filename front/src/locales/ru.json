@@ -12,5 +12,6 @@
   "password_retype": "Повторите пароль",
   "changes": "Последние изменения",
   "update": "Обновить",
-  "update_password": "Пароль обновить"
+  "update_password": "Пароль обновить",
+  "users": "Пользователи"
 }

@@ -25,6 +25,8 @@ type RouterConfig struct {
 	SessionRepo ISessionManager
 }
 
+var adminPagesRights = []int64{AdminRights}
+
 func InitRouter(cnf *config.AppConfig, rCnf *RouterConfig, jwtCookie, appName, appBuild, appHash string) *AppRouter {
 	if cnf.ProdEnv {
 		gin.SetMode(gin.ReleaseMode)
@@ -51,13 +53,13 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authGroup.POST("refresh", ar.RefreshToken)
 	authGroup.POST("logout", ar.Logout)
 
-	authorizedDataGroup := ar.GinEngine.Group("/api/data")
-	authorizedDataGroup.Use(ar.sessionRepo.AuthMiddleware)
-	authorizedDataGroup.POST("profile", ar.GetPerson)
-	authorizedDataGroup.POST("profile/update", ar.UpdatePerson)
-	authorizedDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
-	authorizedDataGroup.
-		Use(ar.rightsChecker.CheckRight([]int64{AdminRights}, ar.sessionRepo.GetUserAndVersion)).
+	authDataGroup := ar.GinEngine.Group("/api/data")
+	authDataGroup.Use(ar.sessionRepo.AuthMiddleware)
+	authDataGroup.POST("profile", ar.GetPerson)
+	authDataGroup.POST("profile/update", ar.UpdatePerson)
+	authDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
+	authDataGroup.
+		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
 		POST("users/list", ar.UpdatePersonPass)
 	return ar.GinEngine
 }
