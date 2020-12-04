@@ -26,7 +26,12 @@ type requesto struct {
 	RePassword string `json:"re_password"`
 }
 
-func performRequest(r http.Handler, method, path, token string, payload *requesto) *httptest.ResponseRecorder {
+type updateRequest struct {
+	OldPass string `json:"old_pass"`
+	NewPass string `json:"new_pass"`
+}
+
+func performRequest(r http.Handler, method, path, token string, payload interface{}) *httptest.ResponseRecorder {
 	body, _ := json.Marshal(payload)
 	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
 	if token != "" {
