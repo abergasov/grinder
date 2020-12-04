@@ -23,9 +23,12 @@ func main() {
 	appConf := config.InitConf("/configs/conf.yaml")
 	dbConnect := storage.InitDBConnect(appConf)
 
-	sessionManager := repository.InitSessionManager(appConf.JWTKey, jwtCookie, 200*time.Minute)
-	userRepo := repository.InitUserRepository(appConf, dbConnect)
-	router := routes.InitRouter(appConf, userRepo, sessionManager, jwtCookie, appName, buildTime, buildHash)
+	routerConf := &routes.RouterConfig{
+		SessionRepo: repository.InitSessionManager(appConf.JWTKey, jwtCookie, 200*time.Minute),
+		UserRepo:    repository.InitUserRepository(appConf, dbConnect),
+		RightsRepo:  repository.InitRightManager(appConf, dbConnect),
+	}
+	router := routes.InitRouter(appConf, routerConf, jwtCookie, appName, buildTime, buildHash)
 
 	logger.Info("Server running on port", zap.String("port", appConf.AppPort), zap.String("url", "http://localhost:"+appConf.AppPort))
 	err := router.InitRoutes().Run(":" + appConf.AppPort)

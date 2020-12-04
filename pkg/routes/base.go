@@ -8,29 +8,37 @@ import (
 )
 
 type AppRouter struct {
-	GinEngine    *gin.Engine
-	config       *config.AppConfig
-	AppName      string
-	AppBuildTime string
-	AppBuildHash string
-	jwtCookie    string
-	userRepo     IUserRepo
-	sessionRepo  ISessionManager
+	GinEngine     *gin.Engine
+	config        *config.AppConfig
+	AppName       string
+	AppBuildTime  string
+	AppBuildHash  string
+	jwtCookie     string
+	userRepo      IUserRepo
+	sessionRepo   ISessionManager
+	rightsChecker IRightsChecker
 }
 
-func InitRouter(cnf *config.AppConfig, uRepo IUserRepo, sM ISessionManager, jwtCookie, appName, appBuild, appHash string) *AppRouter {
+type RouterConfig struct {
+	UserRepo    IUserRepo
+	RightsRepo  IRightsChecker
+	SessionRepo ISessionManager
+}
+
+func InitRouter(cnf *config.AppConfig, rCnf *RouterConfig, jwtCookie, appName, appBuild, appHash string) *AppRouter {
 	if cnf.ProdEnv {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := &AppRouter{
-		GinEngine:    gin.Default(),
-		config:       cnf,
-		AppName:      appName,
-		AppBuildHash: appHash,
-		AppBuildTime: appBuild,
-		jwtCookie:    jwtCookie,
-		userRepo:     uRepo,
-		sessionRepo:  sM,
+		GinEngine:     gin.Default(),
+		config:        cnf,
+		AppName:       appName,
+		AppBuildHash:  appHash,
+		AppBuildTime:  appBuild,
+		jwtCookie:     jwtCookie,
+		userRepo:      rCnf.UserRepo,
+		sessionRepo:   rCnf.SessionRepo,
+		rightsChecker: rCnf.RightsRepo,
 	}
 	return router
 }
@@ -48,6 +56,9 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authorizedDataGroup.POST("profile", ar.GetPerson)
 	authorizedDataGroup.POST("profile/update", ar.UpdatePerson)
 	authorizedDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
+	authorizedDataGroup.
+		Use(ar.rightsChecker.CheckRight([]int64{AdminRights}, ar.sessionRepo.GetUserAndVersion)).
+		POST("users/list", ar.UpdatePersonPass)
 	return ar.GinEngine
 }
 

@@ -24,7 +24,10 @@ func TestAppRouter_GetPerson(t *testing.T) {
 
 	uRepo := NewMockIUserRepo(ctrl)
 	session.EXPECT().AuthMiddleware(gomock.Any())
-	router := InitRouter(conf, uRepo, session, jwtCookie, "test", "test", "hash")
+	router := InitRouter(conf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+	}, jwtCookie, "test", "test", "hash")
 	engine := router.InitRoutes()
 
 	session.EXPECT().GetUserAndVersion(gomock.Any()).Return(int64(0), int64(0), false)
@@ -64,7 +67,10 @@ func TestAppRouter_UpdatePerson(t *testing.T) {
 
 	uRepo := NewMockIUserRepo(ctrl)
 	session.EXPECT().AuthMiddleware(gomock.Any()).AnyTimes()
-	router := InitRouter(conf, uRepo, session, jwtCookie, "test", "test", "hash")
+	router := InitRouter(conf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+	}, jwtCookie, "test", "test", "hash")
 	engine := router.InitRoutes()
 
 	session.EXPECT().GetUserAndVersion(gomock.Any()).Return(int64(0), int64(0), false)

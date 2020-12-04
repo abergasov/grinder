@@ -1,5 +1,6 @@
 import AppHome from './components/AppHome';
 import AppProfile from "./components/AppProfile";
+import AppUsers from "./components/AppUsers";
 
 const routes = [
     {
@@ -11,6 +12,11 @@ const routes = [
         path: '/profile',
         name: 'profile',
         component: AppProfile
+    },
+    {
+        path: '/users',
+        name: 'users',
+        component: AppUsers
     },
 ];
 

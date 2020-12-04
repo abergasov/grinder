@@ -69,7 +69,10 @@ func TestAppRouter_LoginUser(t *testing.T) {
 	//session := repository.InitSessionManager("abc", jwtCookieExp)
 	session := NewMockISessionManager(ctrl)
 	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, uRepo, session, jwtCookie, "test", "test", "hash")
+	router := InitRouter(conf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+	}, jwtCookie, "test", "test", "hash")
 	engine := router.InitRoutes()
 	w := performRequest(engine, "POST", "/api/auth/login", "", nil)
 	compareCode(http.StatusBadRequest, w, t)
@@ -119,7 +122,10 @@ func TestAppRouter_RegisterUser(t *testing.T) {
 	//session := repository.InitSessionManager("abc", jwtCookieExp)
 	session := NewMockISessionManager(ctrl)
 	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, uRepo, session, jwtCookie, "test", "test", "hash")
+	router := InitRouter(conf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+	}, jwtCookie, "test", "test", "hash")
 	engine := router.InitRoutes()
 
 	w := performRequest(engine, "POST", "/api/auth/register", "", nil)
@@ -175,7 +181,10 @@ func TestAppRouter_RefreshToken(t *testing.T) {
 	}
 	session := NewMockISessionManager(ctrl)
 	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, uRepo, session, jwtCookie, "test", "test", "hash")
+	router := InitRouter(conf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+	}, jwtCookie, "test", "test", "hash")
 	engine := router.InitRoutes()
 
 	w := performRequest(engine, "POST", "/api/auth/refresh", "", nil)

@@ -102,6 +102,7 @@
           { title: 'dashboard', icon: 'mdi-view-dashboard', link: '/' },
           { title: 'statistic', icon: 'mdi-chart-areaspline', link: '/statistic' },
           { title: 'profile', icon: 'mdi-account-box', link: '/profile'},
+          { title: 'users', icon: 'mdi-account-box', link: '/users'},
         ],
         darkMode: false,
         lang: [
