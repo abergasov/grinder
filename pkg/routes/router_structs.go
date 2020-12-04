@@ -27,6 +27,10 @@ type IUserRepo interface {
 	UpdateUserPassword(userID, userV int64, oldPass, newPass string) (*repository.User, bool, error)
 }
 
+type IPersonsRepo interface {
+	LoadPersons()
+}
+
 type IRightsChecker interface {
 	CheckRight(rights []int64, ver func(*gin.Context) (int64, int64, bool)) gin.HandlerFunc
 }

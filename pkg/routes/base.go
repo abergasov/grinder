@@ -15,6 +15,7 @@ type AppRouter struct {
 	AppBuildHash  string
 	jwtCookie     string
 	userRepo      IUserRepo
+	personsRepo   IPersonsRepo
 	sessionRepo   ISessionManager
 	rightsChecker IRightsChecker
 }
@@ -22,6 +23,7 @@ type AppRouter struct {
 type RouterConfig struct {
 	UserRepo    IUserRepo
 	RightsRepo  IRightsChecker
+	PersonsRepo IPersonsRepo
 	SessionRepo ISessionManager
 }
 
@@ -39,8 +41,9 @@ func InitRouter(cnf *config.AppConfig, rCnf *RouterConfig, jwtCookie, appName, a
 		AppBuildTime:  appBuild,
 		jwtCookie:     jwtCookie,
 		userRepo:      rCnf.UserRepo,
-		sessionRepo:   rCnf.SessionRepo,
 		rightsChecker: rCnf.RightsRepo,
+		personsRepo:   rCnf.PersonsRepo,
+		sessionRepo:   rCnf.SessionRepo,
 	}
 	return router
 }
@@ -60,7 +63,7 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
 	authDataGroup.
 		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
-		POST("users/list", ar.UpdatePersonPass)
+		POST("users/list", ar.GetUsersList)
 	return ar.GinEngine
 }
 

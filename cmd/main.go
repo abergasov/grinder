@@ -27,6 +27,7 @@ func main() {
 		SessionRepo: repository.InitSessionManager(appConf.JWTKey, jwtCookie, 200*time.Minute),
 		UserRepo:    repository.InitUserRepository(appConf, dbConnect),
 		RightsRepo:  repository.InitRightManager(appConf, dbConnect),
+		PersonsRepo: repository.InitPersonsRepository(appConf, dbConnect),
 	}
 	router := routes.InitRouter(appConf, routerConf, jwtCookie, appName, buildTime, buildHash)
 
