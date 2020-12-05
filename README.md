@@ -53,3 +53,9 @@ apply migration
 ```shell script
 cd helpers && php app.php migrate && cd ..
 ```
+
+## App configs
+```shell
+touch configs/common.env && touch configs/conf.yaml
+```
+Set data from examples
