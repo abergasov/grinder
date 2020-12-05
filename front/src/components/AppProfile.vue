@@ -115,9 +115,7 @@
         }).then(
           data => {
             this.pending = false;
-            !data.ok ?
-              this.$store.commit('setAlert', {display: true, text: data.error, color: 'error'}):
-              this.$store.commit('setAlert', {display: true, text: "Password changed", color: 'success'});
+            !data.ok ? this.showError(data.error):this.showOk("Password changed");
           },
           e => console.error(e),
         )

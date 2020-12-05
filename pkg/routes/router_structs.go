@@ -28,7 +28,8 @@ type IUserRepo interface {
 }
 
 type IPersonsRepo interface {
-	LoadPersons()
+	LoadPersons(offset int64) ([]repository.Person, []repository.PersonRight, error)
+	GetRightsMap() map[int64]string
 }
 
 type IRightsChecker interface {

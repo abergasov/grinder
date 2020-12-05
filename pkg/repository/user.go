@@ -5,6 +5,7 @@ import (
 	"grinder/pkg/config"
 	"grinder/pkg/storage"
 	"grinder/pkg/utils"
+	"time"
 )
 
 type UserRepository struct {
@@ -55,9 +56,10 @@ func (ur *UserRepository) RegisterUser(mail, password string) (registered int64,
 		return 0, false, err
 	}
 	res, err := ur.db.Client.NamedExec("INSERT INTO users (email, Pass, version) VALUES (:email, :Pass, :version)", User{
-		Email:   mail,
-		Pass:    passHash,
-		Version: DefaultUserVersion,
+		Email:      mail,
+		Pass:       passHash,
+		Version:    DefaultUserVersion,
+		RegisterAt: time.Now().Format("2006-01-02 15:04:05"),
 	})
 
 	if err != nil {

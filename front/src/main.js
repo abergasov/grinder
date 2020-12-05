@@ -118,6 +118,24 @@ Vue.prototype.askBackend = function (url, param) {
     });
 };
 
+Vue.prototype.showError = function (text, duration = 5) {
+    this.$store.commit('setAlert', {
+        display: true,
+        text: text,
+        delay: duration,
+        color: 'error'
+    });
+}
+
+Vue.prototype.showOk = function (text, duration = 5) {
+    this.$store.commit('setAlert', {
+        display: true,
+        text: text,
+        delay: duration,
+        color: 'success'
+    });
+}
+
 // Configure router
 const router = new VueRouter({
     routes,
