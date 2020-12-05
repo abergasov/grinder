@@ -1,6 +1,6 @@
 package utils
 
-func SliceHasIntersections(need []int64, slice []int64) bool {
+func SliceHasIntersections(need, slice []int64) bool {
 	for i := range slice {
 		for j := range need {
 			if need[j] == slice[i] {

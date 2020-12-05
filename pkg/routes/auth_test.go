@@ -52,7 +52,7 @@ func performRequest(r http.Handler, method, path, token string, payload interfac
 	return w
 }
 
-func createRouter(ctrl *gomock.Controller) (*gin.Engine, string) {
+func createRouter(ctrl *gomock.Controller) (engine *gin.Engine, token string) {
 	logger.NewLogger()
 	cnf := &config.AppConfig{ProdEnv: true, DBConf: config.DBConf{}}
 	uRepo = NewMockIUserRepo(ctrl)
@@ -64,7 +64,8 @@ func createRouter(ctrl *gomock.Controller) (*gin.Engine, string) {
 		RightsRepo:  rChecker,
 	}, jwtCookie, "test", "test", "hash")
 	sessionReal := repository.InitSessionManager("abc", jwtCookie, jwtCookieExp)
-	token, err := sessionReal.CreateSession(tUser, tUserV)
+	var err error
+	token, err = sessionReal.CreateSession(tUser, tUserV)
 	if err != nil {
 		log.Fatalf("unexpected error: %s", err.Error())
 	}

@@ -11,12 +11,12 @@ import (
 )
 
 type AppConfig struct {
-	ProdEnv   bool   `yaml:"prod_env"`
+	DBConf    DBConf `yaml:"db_conf"`
 	HostURL   string `yaml:"host_url"`
-	SSLEnable bool   `yaml:"ssl_enable"`
 	AppPort   string `yaml:"app_port"`
 	JWTKey    string `yaml:"jwt_key"`
-	DBConf    DBConf `yaml:"db_conf"`
+	ProdEnv   bool   `yaml:"prod_env"`
+	SSLEnable bool   `yaml:"ssl_enable"`
 }
 
 type DBConf struct {

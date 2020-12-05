@@ -65,12 +65,13 @@ func (s *SessionManager) ValidateSession(sessionID string) (userID, version int6
 	return
 }
 
-func (s *SessionManager) GetUserAndVersion(c *gin.Context) (int64, int64, bool) {
+func (s *SessionManager) GetUserAndVersion(c *gin.Context) (userID, userVersion int64, valid bool) {
 	val, exist := c.Get("user_id")
 	if !exist {
 		return 0, 0, false
 	}
-	userID, ok := val.(int64)
+	var ok bool
+	userID, ok = val.(int64)
 	if !ok {
 		return 0, 0, false
 	}
@@ -78,7 +79,7 @@ func (s *SessionManager) GetUserAndVersion(c *gin.Context) (int64, int64, bool) 
 	if !exist {
 		return 0, 0, false
 	}
-	userVersion, ok := val.(int64)
+	userVersion, ok = val.(int64)
 	if !ok {
 		return 0, 0, false
 	}

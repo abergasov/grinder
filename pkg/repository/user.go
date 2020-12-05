@@ -72,7 +72,7 @@ func (ur *UserRepository) RegisterUser(mail, password string) (registered int64,
 	return uID, false, nil
 }
 
-func (ur *UserRepository) LoginUser(mail, password string) (userID int64, userVersion int64, err error) {
+func (ur *UserRepository) LoginUser(mail, password string) (userID, userVersion int64, err error) {
 	var p User
 	err = ur.db.Client.Get(&p, "SELECT * FROM users WHERE email = ?", mail)
 	if err != nil {
