@@ -2,11 +2,7 @@
   <v-container>
     <v-row no-gutters>
       <v-col cols="12" sm="12" md="4" lg="3">
-        <h1>adadw</h1>
-      </v-col>
-      <v-col cols="12" sm="12" md="4" lg="3">
-        <router-link to="/">Home</router-link>
-        <router-view />
+        <h1>Tasks</h1>
       </v-col>
 
       <v-col cols="12" sm="12">

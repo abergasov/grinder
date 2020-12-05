@@ -29,6 +29,7 @@ github.com/golang/protobuf/proto
 ## explicit
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
+github.com/jmoiron/sqlx/types
 # github.com/json-iterator/go v1.1.9
 github.com/json-iterator/go
 # github.com/leodido/go-urn v1.2.0

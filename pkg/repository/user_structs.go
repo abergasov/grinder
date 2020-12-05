@@ -1,13 +1,18 @@
 package repository
 
+import (
+	"github.com/jmoiron/sqlx/types"
+)
+
 type User struct {
-	ID         int64  `db:"user_id" json:"id"`
-	Email      string `db:"email" json:"email"`
-	Pass       string `db:"pass" json:"pass,omitempty"`
-	Version    int64  `db:"version" json:"version,omitempty"`
-	FirstName  string `db:"first_name" json:"first_name"`
-	LastName   string `db:"last_name" json:"last_name"`
-	RegisterAt string `db:"register_date" json:"register_date"`
+	ID         int64         `db:"user_id" json:"id"`
+	Email      string        `db:"email" json:"email"`
+	Pass       string        `db:"pass" json:"pass,omitempty"`
+	Version    int64         `db:"version" json:"version,omitempty"`
+	FirstName  string        `db:"first_name" json:"first_name"`
+	LastName   string        `db:"last_name" json:"last_name"`
+	RegisterAt string        `db:"register_date" json:"register_date"`
+	Active     types.BitBool `db:"active,bit" json:"active"`
 }
 
 func (u *User) GetFirstName() string {
