@@ -19,5 +19,4 @@ func TestSliceHasIntersections(t *testing.T) {
 	if !SliceHasIntersections(small, big) {
 		t.Error("unexpected false")
 	}
-
 }

@@ -92,9 +92,9 @@ func (mr *MockISessionManagerMockRecorder) AuthMiddleware(arg0 interface{}) *gom
 }
 
 // GetUserAndVersion mocks base method
-func (m *MockISessionManager) GetUserAndVersion(arg0 *gin.Context) (int64, int64, bool) {
+func (m *MockISessionManager) GetUserAndVersion(c *gin.Context) (int64, int64, bool) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserAndVersion", arg0)
+	ret := m.ctrl.Call(m, "GetUserAndVersion", c)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(int64)
 	ret2, _ := ret[2].(bool)
@@ -102,9 +102,9 @@ func (m *MockISessionManager) GetUserAndVersion(arg0 *gin.Context) (int64, int64
 }
 
 // GetUserAndVersion indicates an expected call of GetUserAndVersion
-func (mr *MockISessionManagerMockRecorder) GetUserAndVersion(arg0 interface{}) *gomock.Call {
+func (mr *MockISessionManagerMockRecorder) GetUserAndVersion(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserAndVersion", reflect.TypeOf((*MockISessionManager)(nil).GetUserAndVersion), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserAndVersion", reflect.TypeOf((*MockISessionManager)(nil).GetUserAndVersion), c)
 }
 
 // MockIUserRepo is a mock of IUserRepo interface
@@ -194,12 +194,11 @@ func (mr *MockIUserRepoMockRecorder) GetUser(userID, version interface{}) *gomoc
 }
 
 // UpdateUser mocks base method
-func (m *MockIUserRepo) UpdateUser(u repository.User) (*repository.User, error) {
+func (m *MockIUserRepo) UpdateUser(u *repository.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", u)
-	ret0, _ := ret[0].(*repository.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateUser indicates an expected call of UpdateUser
@@ -222,4 +221,76 @@ func (m *MockIUserRepo) UpdateUserPassword(userID, userV int64, oldPass, newPass
 func (mr *MockIUserRepoMockRecorder) UpdateUserPassword(userID, userV, oldPass, newPass interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPassword", reflect.TypeOf((*MockIUserRepo)(nil).UpdateUserPassword), userID, userV, oldPass, newPass)
+}
+
+// MockIPersonsRepo is a mock of IPersonsRepo interface
+type MockIPersonsRepo struct {
+	ctrl     *gomock.Controller
+	recorder *MockIPersonsRepoMockRecorder
+}
+
+// MockIPersonsRepoMockRecorder is the mock recorder for MockIPersonsRepo
+type MockIPersonsRepoMockRecorder struct {
+	mock *MockIPersonsRepo
+}
+
+// NewMockIPersonsRepo creates a new mock instance
+func NewMockIPersonsRepo(ctrl *gomock.Controller) *MockIPersonsRepo {
+	mock := &MockIPersonsRepo{ctrl: ctrl}
+	mock.recorder = &MockIPersonsRepoMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockIPersonsRepo) EXPECT() *MockIPersonsRepoMockRecorder {
+	return m.recorder
+}
+
+// LoadPersons mocks base method
+func (m *MockIPersonsRepo) LoadPersons() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "LoadPersons")
+}
+
+// LoadPersons indicates an expected call of LoadPersons
+func (mr *MockIPersonsRepoMockRecorder) LoadPersons() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPersons", reflect.TypeOf((*MockIPersonsRepo)(nil).LoadPersons))
+}
+
+// MockIRightsChecker is a mock of IRightsChecker interface
+type MockIRightsChecker struct {
+	ctrl     *gomock.Controller
+	recorder *MockIRightsCheckerMockRecorder
+}
+
+// MockIRightsCheckerMockRecorder is the mock recorder for MockIRightsChecker
+type MockIRightsCheckerMockRecorder struct {
+	mock *MockIRightsChecker
+}
+
+// NewMockIRightsChecker creates a new mock instance
+func NewMockIRightsChecker(ctrl *gomock.Controller) *MockIRightsChecker {
+	mock := &MockIRightsChecker{ctrl: ctrl}
+	mock.recorder = &MockIRightsCheckerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockIRightsChecker) EXPECT() *MockIRightsCheckerMockRecorder {
+	return m.recorder
+}
+
+// CheckRight mocks base method
+func (m *MockIRightsChecker) CheckRight(rights []int64, ver func(*gin.Context) (int64, int64, bool)) gin.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckRight", rights, ver)
+	ret0, _ := ret[0].(gin.HandlerFunc)
+	return ret0
+}
+
+// CheckRight indicates an expected call of CheckRight
+func (mr *MockIRightsCheckerMockRecorder) CheckRight(rights, ver interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRight", reflect.TypeOf((*MockIRightsChecker)(nil).CheckRight), rights, ver)
 }

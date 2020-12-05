@@ -20,7 +20,6 @@ type PasswordConfig struct {
 
 // GeneratePassword via argon2
 func GeneratePassword(c *PasswordConfig, password string) (string, error) {
-
 	// Generate a Salt
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
@@ -40,7 +39,6 @@ func GeneratePassword(c *PasswordConfig, password string) (string, error) {
 
 // ComparePassword just compare
 func ComparePassword(password, hash string) (bool, error) {
-
 	parts := strings.Split(hash, "$")
 	if len(parts) != 6 {
 		return false, errors.New("invalid hash")

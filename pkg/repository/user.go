@@ -108,12 +108,12 @@ func (ur *UserRepository) GetUser(userID, version int64) (*User, bool, error) {
 	return &p, true, nil
 }
 
-func (ur *UserRepository) UpdateUser(u User) (*User, error) {
+func (ur *UserRepository) UpdateUser(u *User) error {
 	_, err := ur.db.Client.NamedExec(`UPDATE users SET first_name=:first_name, last_name=:last_name WHERE user_id = :user_id AND version = :version`, u)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &u, nil
+	return nil
 }
 
 func (ur *UserRepository) UpdateUserPassword(uID, uV int64, oldPass, newPass string) (*User, bool, error) {

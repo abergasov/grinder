@@ -45,8 +45,8 @@ func (s *SessionManager) CreateSession(userID, userVersion int64) (string, error
 	return at.SignedString(s.jwtKey)
 }
 
-func (s *SessionManager) ValidateSession(sessionId string) (userID, version int64) {
-	token, err := jwt.ParseWithClaims(sessionId, &sessionClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *SessionManager) ValidateSession(sessionID string) (userID, version int64) {
+	token, err := jwt.ParseWithClaims(sessionID, &sessionClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return s.jwtKey, nil
 	})
 

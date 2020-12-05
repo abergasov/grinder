@@ -46,12 +46,13 @@ func (ar *AppRouter) UpdatePerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"ok": false, "error": "Invalid request"})
 		return
 	}
-	user, err := ar.userRepo.UpdateUser(repository.User{
+	user := repository.User{
 		ID:        userID,
 		Version:   userVersion,
 		FirstName: p.FirstName,
 		LastName:  p.LastName,
-	})
+	}
+	err := ar.userRepo.UpdateUser(&user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"ok": false, "error": "server error"})
 		return

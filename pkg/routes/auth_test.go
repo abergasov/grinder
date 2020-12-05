@@ -7,18 +7,27 @@ import (
 	"grinder/pkg/config"
 	"grinder/pkg/logger"
 	"grinder/pkg/repository"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/golang/mock/gomock"
 )
 
 var (
-	jwtCookie    = "test"
-	jwtCookieExp = 2 * time.Minute
+	jwtCookie          = "test"
+	jwtCookieExp       = 2 * time.Minute
+	tUser        int64 = 666
+	tUserV       int64 = 666
 )
+
+var uRepo *MockIUserRepo
+var session *MockISessionManager
+var rChecker *MockIRightsChecker
 
 type requesto struct {
 	Email      string `json:"email"`
@@ -43,37 +52,32 @@ func performRequest(r http.Handler, method, path, token string, payload interfac
 	return w
 }
 
-func getSampleConf() *config.AppConfig {
+func createRouter(ctrl *gomock.Controller) (*gin.Engine, string) {
 	logger.NewLogger()
-	dbConf := config.DBConf{
-		DBPort: "",
-		DBHost: "",
-		DBPass: "",
-		DBUser: "",
+	cnf := &config.AppConfig{ProdEnv: true, DBConf: config.DBConf{}}
+	uRepo = NewMockIUserRepo(ctrl)
+	session = NewMockISessionManager(ctrl)
+	rChecker = NewMockIRightsChecker(ctrl)
+	router := InitRouter(cnf, &RouterConfig{
+		UserRepo:    uRepo,
+		SessionRepo: session,
+		RightsRepo:  rChecker,
+	}, jwtCookie, "test", "test", "hash")
+	sessionReal := repository.InitSessionManager("abc", jwtCookie, jwtCookieExp)
+	token, err := sessionReal.CreateSession(tUser, tUserV)
+	if err != nil {
+		log.Fatalf("unexpected error: %s", err.Error())
 	}
-	return &config.AppConfig{
-		ProdEnv:   true,
-		AppPort:   "8080",
-		HostURL:   "",
-		SSLEnable: false,
-		JWTKey:    "",
-		DBConf:    dbConf,
-	}
+	rChecker.EXPECT().CheckRight(gomock.Any(), gomock.Any())
+	return router.InitRoutes(), token
 }
 
 //go:generate mockgen -source=router_structs.go -destination=auth_mock.go -package=routes
 func TestAppRouter_LoginUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	conf := getSampleConf()
-	//session := repository.InitSessionManager("abc", jwtCookieExp)
-	session := NewMockISessionManager(ctrl)
-	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, &RouterConfig{
-		UserRepo:    uRepo,
-		SessionRepo: session,
-	}, jwtCookie, "test", "test", "hash")
-	engine := router.InitRoutes()
+	engine, _ := createRouter(ctrl)
+
 	w := performRequest(engine, "POST", "/api/auth/login", "", nil)
 	compareCode(http.StatusBadRequest, w, t)
 
@@ -112,21 +116,12 @@ func TestAppRouter_LoginUser(t *testing.T) {
 	uRepo.EXPECT().LoginUser(body.Email, body.Password).Return(int64(0), int64(0), nil)
 	w = performRequest(engine, "POST", "/api/auth/login", "", body)
 	compareCode(http.StatusUnauthorized, w, t)
-
 }
 
 func TestAppRouter_RegisterUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	conf := getSampleConf()
-	//session := repository.InitSessionManager("abc", jwtCookieExp)
-	session := NewMockISessionManager(ctrl)
-	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, &RouterConfig{
-		UserRepo:    uRepo,
-		SessionRepo: session,
-	}, jwtCookie, "test", "test", "hash")
-	engine := router.InitRoutes()
+	engine, _ := createRouter(ctrl)
 
 	w := performRequest(engine, "POST", "/api/auth/register", "", nil)
 	compareCode(http.StatusBadRequest, w, t)
@@ -173,19 +168,7 @@ func TestAppRouter_RegisterUser(t *testing.T) {
 func TestAppRouter_RefreshToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	conf := getSampleConf()
-	sessionReal := repository.InitSessionManager("abc", jwtCookie, jwtCookieExp)
-	token, err := sessionReal.CreateSession(666, 666)
-	if err != nil {
-		t.Errorf("Unexpected error %s", err.Error())
-	}
-	session := NewMockISessionManager(ctrl)
-	uRepo := NewMockIUserRepo(ctrl)
-	router := InitRouter(conf, &RouterConfig{
-		UserRepo:    uRepo,
-		SessionRepo: session,
-	}, jwtCookie, "test", "test", "hash")
-	engine := router.InitRoutes()
+	engine, token := createRouter(ctrl)
 
 	w := performRequest(engine, "POST", "/api/auth/refresh", "", nil)
 	compareCode(http.StatusUnauthorized, w, t)
