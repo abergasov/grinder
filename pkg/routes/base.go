@@ -67,6 +67,9 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authDataGroup.
 		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
 		POST("users/roles/list", ar.GetUsersRoles)
+	authDataGroup.
+		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
+		POST("users/update", ar.UpdateUser)
 	return ar.GinEngine
 }
 

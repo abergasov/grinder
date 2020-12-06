@@ -22,6 +22,50 @@
               {{ getRoleText(r) }}
             </v-chip>
           </template>
+          <template v-slot:item.active="{ item }">
+            <v-simple-checkbox v-model="item.active" disabled></v-simple-checkbox>
+          </template>
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-dialog v-model="dialog" max-width="500px">
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" sm="6">
+                          <v-text-field v-model="editedItem.email" :disabled="pending"  label="Email"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <v-checkbox label="User active" :disabled="pending" v-model="editedItem.active"></v-checkbox>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <v-text-field v-model="editedItem.first_name" :disabled="pending" label="First name"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <v-text-field v-model="editedItem.last_name" label="Last name" :disabled="pending"></v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" :disabled="pending" text @click="close">Cancel</v-btn>
+                    <v-btn color="blue darken-1" :disabled="!updateValid()" text @click="save">Save</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+          </template>
+          <template v-slot:no-data>
+            <v-btn color="primary" @click="initialize">Reset</v-btn>
+          </template>
         </v-data-table>
       </v-card>
     </v-col>
@@ -33,16 +77,36 @@ export default {
   name: "AppUsers",
   data () {
     return {
+      dialog: false,
+      dialogDelete: false,
       pending: false,
       search: "",
       headers: [
+        { text: 'Active', align: 'start', value: 'active' },
         { text: 'First name', align: 'start', value: 'first_name' },
         { text: 'Last name', value: 'last_name' },
         { text: 'Email', value: 'email' },
         { text: 'Register data', value: 'register_date' },
         { text: 'Roles', value: 'rights' },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       users: [],
+      editedIndex: -1,
+      editedItem: {
+        user_id: 0,
+        email: '',
+        first_name: '',
+        last_name: '',
+        active: false,
+      },
+      defaultItem: {
+        user_id: 0,
+        email: '',
+        first_name: '',
+        last_name: '',
+        active: false,
+      },
+      formTitle: '',
       rightsMap: [],
     }
   },
@@ -107,6 +171,54 @@ export default {
     },
     getRoleText(rId) {
       return this.rightsMap[+rId];
+    },
+
+    editItem (item) {
+      this.editedIndex = this.users.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.formTitle = `Edit user: ${this.editedItem.email} - ${this.editedItem.user_id}`;
+      this.dialog = true
+    },
+
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+
+    updateValid() {
+      return !this.pending &&
+          this.editedItem.email.length > 0 &&
+          this.editedItem.first_name.length > 0 &&
+          this.editedItem.last_name.length > 0;
+    },
+
+    save() {
+      this.pending = true;
+      this.askBackend('data/users/update', {
+        user_id: this.editedItem.user_id,
+        first_name: this.editedItem.first_name,
+        last_name: this.editedItem.last_name,
+        email: this.editedItem.email,
+        active: this.editedItem.active,
+      }).then(
+          data => {
+            this.pending = false;
+            if (data.ok) {
+              this.showOk(data.msg);
+              this.close();
+              this.loadAll();
+            } else {
+              this.showError("error while update");
+            }
+          },
+          e => {
+            console.error(e);
+            this.showError("Error update user");
+          }
+      )
     },
   }
 }

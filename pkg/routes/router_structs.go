@@ -8,7 +8,15 @@ import (
 )
 
 const AdminRights int64 = 1
-const UserRights int64 = 2
+const ModeratorRights int64 = 2
+
+type UserUpdateRequest struct {
+	UserID    int64  `json:"user_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Active    bool   `json:"active"`
+}
 
 type ISessionManager interface {
 	CreateSession(userID int64, version int64) (string, error)
@@ -30,6 +38,7 @@ type IUserRepo interface {
 type IPersonsRepo interface {
 	LoadPersons(offset int64) ([]repository.Person, []repository.PersonRight, error)
 	GetRightsMap() map[int64]string
+	UpdateUser(userID int64, firstName, lastName, email string, active bool) (bool, error)
 }
 
 type IRightsChecker interface {

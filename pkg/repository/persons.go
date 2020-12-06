@@ -5,6 +5,8 @@ import (
 	"grinder/pkg/logger"
 	"grinder/pkg/storage"
 
+	"github.com/jmoiron/sqlx/types"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,12 +18,13 @@ type PersonsRepo struct {
 const loadLimit = 500
 
 type Person struct {
-	UserID     int64   `db:"user_id" json:"user_id"`
-	Email      string  `db:"email" json:"email"`
-	FirstName  string  `db:"first_name" json:"first_name"`
-	LastName   string  `db:"last_name" json:"last_name"`
-	RegisterAt string  `db:"register_date" json:"register_date"`
-	Rights     []int64 `db:"right_id" json:"right_id"`
+	UserID     int64         `db:"user_id" json:"user_id"`
+	Email      string        `db:"email" json:"email"`
+	FirstName  string        `db:"first_name" json:"first_name"`
+	LastName   string        `db:"last_name" json:"last_name"`
+	RegisterAt string        `db:"register_date" json:"register_date"`
+	Active     types.BitBool `db:"active,bit" json:"active"`
+	Rights     []int64       `db:"right_id" json:"right_id"`
 }
 
 type PersonRight struct {
@@ -51,7 +54,7 @@ func InitPersonsRepository(cnf *config.AppConfig, db *storage.DBConnector) *Pers
 func (p *PersonsRepo) LoadPersons(offset int64) ([]Person, []PersonRight, error) {
 	users := make([]Person, 0, 0)
 	userRights := make([]PersonRight, 0, loadLimit*2)
-	err := p.db.Client.Select(&users, "SELECT user_id, email, first_name, last_name, register_date FROM users ORDER BY user_id LIMIT ?, ?", offset, loadLimit)
+	err := p.db.Client.Select(&users, "SELECT user_id, email, first_name, last_name, register_date, active FROM users ORDER BY user_id LIMIT ?, ?", offset, loadLimit)
 	if err != nil {
 		return users, userRights, err
 	}
@@ -75,4 +78,29 @@ func (p *PersonsRepo) LoadPersons(offset int64) ([]Person, []PersonRight, error)
 
 func (p *PersonsRepo) GetRightsMap() map[int64]string {
 	return p.systemRights
+}
+
+func (p *PersonsRepo) UpdateUser(userID int64, firstName, lastName, email string, active bool) (bool, error) {
+	if userID == 0 {
+		return false, nil
+	}
+	prs := Person{
+		Email:     email,
+		LastName:  lastName,
+		FirstName: firstName,
+		UserID:    userID,
+	}
+
+	if active {
+		prs.Active = true
+	}
+	res, err := p.db.Client.NamedExec("UPDATE users SET email=:email, first_name=:first_name, last_name=:last_name WHERE user_id=:user_id", prs)
+	if err != nil {
+		return false, err
+	}
+	count, errC := res.RowsAffected()
+	if errC != nil {
+		return false, errC
+	}
+	return count > 0, nil
 }
