@@ -247,15 +247,48 @@ func (m *MockIPersonsRepo) EXPECT() *MockIPersonsRepoMockRecorder {
 }
 
 // LoadPersons mocks base method
-func (m *MockIPersonsRepo) LoadPersons() {
+func (m *MockIPersonsRepo) LoadPersons(offset int64) ([]repository.Person, []repository.PersonRight, error) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "LoadPersons")
+	ret := m.ctrl.Call(m, "LoadPersons", offset)
+	ret0, _ := ret[0].([]repository.Person)
+	ret1, _ := ret[1].([]repository.PersonRight)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // LoadPersons indicates an expected call of LoadPersons
-func (mr *MockIPersonsRepoMockRecorder) LoadPersons() *gomock.Call {
+func (mr *MockIPersonsRepoMockRecorder) LoadPersons(offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPersons", reflect.TypeOf((*MockIPersonsRepo)(nil).LoadPersons))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPersons", reflect.TypeOf((*MockIPersonsRepo)(nil).LoadPersons), offset)
+}
+
+// GetRightsMap mocks base method
+func (m *MockIPersonsRepo) GetRightsMap() map[int64]string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRightsMap")
+	ret0, _ := ret[0].(map[int64]string)
+	return ret0
+}
+
+// GetRightsMap indicates an expected call of GetRightsMap
+func (mr *MockIPersonsRepoMockRecorder) GetRightsMap() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRightsMap", reflect.TypeOf((*MockIPersonsRepo)(nil).GetRightsMap))
+}
+
+// UpdateUser mocks base method
+func (m *MockIPersonsRepo) UpdateUser(userID int64, firstName, lastName, email string, active bool) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUser", userID, firstName, lastName, email, active)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUser indicates an expected call of UpdateUser
+func (mr *MockIPersonsRepoMockRecorder) UpdateUser(userID, firstName, lastName, email, active interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockIPersonsRepo)(nil).UpdateUser), userID, firstName, lastName, email, active)
 }
 
 // MockIRightsChecker is a mock of IRightsChecker interface

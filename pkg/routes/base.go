@@ -57,19 +57,19 @@ func (ar *AppRouter) InitRoutes() *gin.Engine {
 	authGroup.POST("logout", ar.Logout)
 
 	authDataGroup := ar.GinEngine.Group("/api/data")
-	authDataGroup.Use(ar.sessionRepo.AuthMiddleware)
+	authDataGroup.
+		Use(ar.sessionRepo.AuthMiddleware)
 	authDataGroup.POST("profile", ar.GetPerson)
 	authDataGroup.POST("profile/update", ar.UpdatePerson)
 	authDataGroup.POST("profile/update_password", ar.UpdatePersonPass)
-	authDataGroup.
-		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
-		POST("users/list", ar.GetUsersList)
-	authDataGroup.
-		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
-		POST("users/roles/list", ar.GetUsersRoles)
-	authDataGroup.
-		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion)).
-		POST("users/update", ar.UpdateUser)
+
+	adminAuthGroup := ar.GinEngine.Group("/api/data")
+	adminAuthGroup.
+		Use(ar.sessionRepo.AuthMiddleware).
+		Use(ar.rightsChecker.CheckRight(adminPagesRights, ar.sessionRepo.GetUserAndVersion))
+	adminAuthGroup.POST("users/list", ar.GetUsersList)
+	adminAuthGroup.POST("users/roles/list", ar.GetUsersRoles)
+	adminAuthGroup.POST("users/update", ar.UpdateUser)
 	return ar.GinEngine
 }
 
